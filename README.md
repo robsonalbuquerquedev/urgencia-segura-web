@@ -1,6 +1,6 @@
 # UrgenciaSeguraWeb
 
-**Portal web desenvolvido em Next.js para monitoramento em tempo real das solicitações de emergência enviadas pelo aplicativo UrgenciaSeguraApp.**
+**Portal web desenvolvido em Next.js para monitoramento em tempo real das solicitações de emergência enviadas pelo aplicativo [UrgenciaSeguraApp](https://github.com/robsonalbuquerquedev/UrgenciaSeguraApp.git).**
 
 Este projeto exibe na interface web os dados armazenados no **Firebase Realtime Database**, permitindo que profissionais do SAMU e da Defesa Civil acompanhem e gerenciem os atendimentos emergenciais de forma eficiente.
 
