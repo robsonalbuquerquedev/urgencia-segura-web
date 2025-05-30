@@ -77,7 +77,7 @@ export default function UrgenciasList() {
       <div className="mb-8 flex flex-col md:flex-row gap-4 justify-center">
         <input
           type="date"
-          className="p-2 border rounded text-[#000000]"
+          className="p-2 border border-[#264D73] rounded text-[#000000] font-semibold"
           value={filtroData}
           onChange={(e) => setFiltroData(e.target.value)}
         />
