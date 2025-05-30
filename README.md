@@ -1,37 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UrgenciaSeguraWeb
 
-## Getting Started
+**Portal web desenvolvido em Next.js para monitoramento em tempo real das solicitações de emergência enviadas pelo aplicativo [UrgenciaSeguraApp](https://github.com/robsonalbuquerquedev/UrgenciaSeguraApp.git).**
 
-First, run the development server:
+Este projeto exibe na interface web os dados armazenados no **Firebase Realtime Database**, permitindo que profissionais do SAMU e da Defesa Civil acompanhem e gerenciem os atendimentos emergenciais de forma eficiente.
+
+---
+
+## Tecnologias usadas
+
+- [Next.js](https://nextjs.org) - framework React para aplicações web modernas  
+- [Firebase Realtime Database](https://firebase.google.com/docs/database) - armazenamento em tempo real dos dados de emergência  
+- Integração com API do Firebase para leitura dos dados em tempo real  
+
+---
+
+## Começando
+
+Para rodar o servidor de desenvolvimento local, use:
 
 ```bash
 npm run dev
-# or
+# ou
 yarn dev
-# or
+# ou
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000 no navegador para ver o portal em ação.
+Você pode editar a página inicial modificando o arquivo app/page.tsx. As alterações são refletidas automaticamente.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Mais informações sobre Next.js
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [Documentação Next.js](https://nextjs.org/docs)
+- [Tutorial interativo Learn Next.js](https://nextjs.org/learn)
 
-## Learn More
+## Deploy
 
-To learn more about Next.js, take a look at the following resources:
+A forma mais fácil de publicar seu portal é usando a plataforma Vercel, criada pelos desenvolvedores do Next.js.
+Para mais detalhes, veja [Deploy no Next.js](https://nextjs.org/docs/app/getting-started/deploying).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contato
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Projeto acadêmico desenvolvido por Robson Albuquerque.
+- E-mail: robalbuquerque98@gmail.com
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)
+![License](https://img.shields.io/badge/Licença-MIT-blue)
+![Plataforma](https://img.shields.io/badge/Plataforma-Web-green)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# UrgenciaSeguraWeb
+![Next.js](https://img.shields.io/badge/Next.js-13+-black?logo=next.js)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-2.2+-blue?logo=tailwindcss)
+![VSCode](https://img.shields.io/badge/Editor-VSCode-blue?logo=visualstudiocode)
+
+![Linguagem](https://img.shields.io/github/languages/top/robsonalbuquerquedev/UrgenciaSeguraWeb)
+![Último commit](https://img.shields.io/github/last-commit/robsonalbuquerquedev/UrgenciaSeguraWeb)
