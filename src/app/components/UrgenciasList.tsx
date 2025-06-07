@@ -75,39 +75,50 @@ export default function UrgenciasList() {
       </h1>
 
       <div className="mb-8 flex flex-col md:flex-row gap-4 justify-center">
-        <input
-          type="date"
-          className="p-2 border border-[#264D73] rounded text-[#000000] font-semibold"
-          value={filtroData}
-          onChange={(e) => setFiltroData(e.target.value)}
-        />
+        <div className="flex flex-col">
+          <label className="mb-1 text-[#264D73] font-semibold">Selecione a Data</label>
+          <input
+            type="date"
+            className="p-2 border border-[#264D73] rounded text-[#000000] font-semibold focus:ring-2 focus:ring-blue-500"
+            value={filtroData}
+            onChange={(e) => setFiltroData(e.target.value)}
+          />
+        </div>
 
-        <select
-          className="p-2 border border-[#264D73] rounded text-[#000000] font-semibold"
-          value={filtroOrgao}
-          onChange={(e) => {
-            setFiltroOrgao(e.target.value);
-            setFiltroTipo('');
-          }}
-        >
-          <option value="">Todos os Órgãos</option>
-          <option value="SAMU">SAMU</option>
-          <option value="Defesa Civil">Defesa Civil</option>
-        </select>
-
-        {filtroOrgao && (
+        {/* Campo Órgão com Label */}
+        <div className="flex flex-col">
+          <label className="mb-1 text-[#264D73] font-semibold">Selecione o Órgão</label>
           <select
-            className="p-2 border rounded text-[#000000]"
-            value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
+            className="p-2 border border-[#264D73] rounded text-[#000000] font-semibold focus:ring-2 focus:ring-blue-500"
+            value={filtroOrgao}
+            onChange={(e) => {
+              setFiltroOrgao(e.target.value);
+              setFiltroTipo('');
+            }}
           >
-            <option value="">Todos os Tipos</option>
-            {tiposDisponiveis.map((tipo) => (
-              <option key={tipo} value={tipo}>
-                {tipo}
-              </option>
-            ))}
+            <option value="">Todos os Órgãos</option>
+            <option value="SAMU">SAMU</option>
+            <option value="Defesa Civil">Defesa Civil</option>
           </select>
+        </div>
+
+        {/* Campo Tipo - Condicional */}
+        {filtroOrgao && (
+          <div className="flex flex-col">
+            <label className="mb-1 text-[#264D73] font-semibold">Selecione o Tipo</label>
+            <select
+              className="p-2 border border-[#264D73] rounded text-[#000000] font-semibold focus:ring-2 focus:ring-blue-500"
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value)}
+            >
+              <option value="">Todos os Tipos</option>
+              {tiposDisponiveis.map((tipo) => (
+                <option key={tipo} value={tipo}>
+                  {tipo}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
       </div>
 
