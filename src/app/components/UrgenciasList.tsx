@@ -78,14 +78,22 @@ export default function UrgenciasList() {
 
       <div className="mb-8 flex flex-col md:flex-row gap-4 justify-center">
 
-        {/* Campo Data com Label e Ícone */}
+        {/* Campo Data com Label e Ícone e Placeholder Fake */}
         <div className="flex flex-col">
           <label className="mb-1 text-[#264D73] font-semibold">Selecione a Data</label>
-          <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+          <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white relative">
             <FaCalendarAlt className="text-gray-500 mr-2" />
+
+            {/* "Placeholder visual" se não tiver valor */}
+            {!filtroData && (
+              <span className="absolute left-9 text-gray-400 font-medium pointer-events-none">
+                mm/dd/yyyy
+              </span>
+            )}
+
             <input
               type="date"
-              className="w-full outline-none text-[#000000] font-semibold"
+              className="w-full outline-none text-[#000000] font-semibold bg-transparent"
               value={filtroData}
               onChange={(e) => setFiltroData(e.target.value)}
             />
