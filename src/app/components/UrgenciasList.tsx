@@ -50,9 +50,11 @@ export default function UrgenciasList() {
     });
   }, []);
 
+  // Converte "07/06/2025" ou "07/06/2025 14:30" → "2025-06-07"
   function formatarDataParaInput(dataHora: string) {
-    const [dia, mes, anoHora] = dataHora.split('/');
-    const [ano] = anoHora.split(' ');
+    if (!dataHora) return '';
+    const [data] = dataHora.split(' '); // pega só a parte da data
+    const [dia, mes, ano] = data.split('/');
     return `${ano}-${mes}-${dia}`;
   }
 
@@ -78,24 +80,34 @@ export default function UrgenciasList() {
 
       <div className="mb-8 flex flex-col md:flex-row gap-4 justify-center">
 
-        {/* Campo Data com Label e Ícone e Placeholder Fake */}
         <div className="flex flex-col">
           <label className="mb-1 text-[#264D73] font-semibold">Selecione a Data</label>
           <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white relative">
-            <FaCalendarAlt className="text-gray-500 mr-2" />
 
-            {/* "Placeholder visual" se não tiver valor */}
+            {/* Ícone */}
+            <FaCalendarAlt className="text-gray-500 mr-2 z-10" />
+
+            {/* Placeholder visual em formato brasileiro */}
             {!filtroData && (
-              <span className="absolute left-9 text-gray-400 font-medium pointer-events-none">
-                mm/dd/yyyy
+              <span
+                className="absolute left-9 text-gray-400 font-medium pointer-events-none z-10"
+                style={{ top: '50%', transform: 'translateY(-50%)' }}
+              >
+                dd/mm/aaaa
               </span>
             )}
 
+            {/* Campo de data */}
             <input
               type="date"
-              className="w-full outline-none text-[#000000] font-semibold bg-transparent"
+              className="w-full outline-none text-[#000000] font-semibold bg-transparent relative z-20"
               value={filtroData}
               onChange={(e) => setFiltroData(e.target.value)}
+              style={{
+                // Força transparência total para manter o span visível
+                color: filtroData ? "#000000" : "transparent",
+                caretColor: "#000000",
+              }}
             />
           </div>
         </div>
