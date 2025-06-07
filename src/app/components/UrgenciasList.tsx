@@ -69,9 +69,15 @@ export default function UrgenciasList() {
       ? item.tipoUrgencia === filtroTipo
       : true;
 
-    return dataValida && tipoValido;
-  });
+    const orgaoValido = filtroOrgao
+      ? filtroOrgao === 'SAMU'
+        ? tiposSamu.includes(item.tipoUrgencia)
+        : tiposDefesaCivil.includes(item.tipoUrgencia)
+      : true;
 
+    return dataValida && tipoValido && orgaoValido;
+  });
+  
   return (
     <div className="p-6 bg-[#D5EAF7] rounded-lg shadow-lg max-w-7xl mx-auto">
       <h1 className="text-3xl font-extrabold mb-8 text-[#000000] text-center">
