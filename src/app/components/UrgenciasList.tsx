@@ -24,6 +24,7 @@ interface Urgencia {
   dataHora: string;
   localizacao: string;
   celular: string;
+  orgao: string;
 }
 
 export default function UrgenciasList() {
@@ -59,14 +60,13 @@ export default function UrgenciasList() {
     return `${ano}-${mes}-${dia}`;
   }
 
-  const tiposPadrao = filtroOrgao === 'SAMU' ? tiposSamu :
-    filtroOrgao === 'Defesa Civil' ? tiposDefesaCivil : [];
-
-  const tiposDisponiveis = filtroOrgao === 'SAMU'
-    ? tiposSamu
-    : filtroOrgao === 'Defesa Civil'
-      ? tiposDefesaCivil
-      : [];
+  const tiposDisponiveis = [
+    ...new Set(
+      urgencias
+        .filter((u) => !filtroOrgao || u.orgao === filtroOrgao)
+        .map((u) => u.tipoUrgencia)
+    ),
+  ];
 
   const urgenciasFiltradas = urgencias.filter((item) => {
     const dataValida = filtroData
@@ -78,9 +78,7 @@ export default function UrgenciasList() {
       : true;
 
     const orgaoValido = filtroOrgao
-      ? filtroOrgao === 'SAMU'
-        ? tiposSamu.includes(item.tipoUrgencia)
-        : tiposDefesaCivil.includes(item.tipoUrgencia)
+      ? item.orgao === filtroOrgao
       : true;
 
     const nomeValido = filtroNome
@@ -89,7 +87,7 @@ export default function UrgenciasList() {
 
     return dataValida && tipoValido && orgaoValido && nomeValido;
   });
-
+  
   return (
     <div className="p-6 bg-[#D5EAF7] rounded-lg shadow-lg max-w-7xl mx-auto">
       <h1 className="text-3xl font-extrabold mb-8 text-[#000000] text-center">
