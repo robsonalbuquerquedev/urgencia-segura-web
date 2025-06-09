@@ -32,6 +32,7 @@ export default function UrgenciasList() {
   const [filtroOrgao, setFiltroOrgao] = useState<string>('');
   const [filtroTipo, setFiltroTipo] = useState<string>('');
   const [filtroData, setFiltroData] = useState<string>('');
+  const [filtroNome, setFiltroNome] = useState<string>('');
 
   const tiposSamu = ["Acidente", "Mal-estar", "Desmaio", "Queimadura", "Sangramento", "Mal súbito"];
   const tiposDefesaCivil = ["Deslizamento", "Alagamento", "Incêndio Florestal", "Desabamento", "Vazamento de Gás", "Risco Estrutural"];
@@ -58,7 +59,14 @@ export default function UrgenciasList() {
     return `${ano}-${mes}-${dia}`;
   }
 
-  const tiposDisponiveis = filtroOrgao === 'SAMU' ? tiposSamu : filtroOrgao === 'Defesa Civil' ? tiposDefesaCivil : [];
+  const tiposPadrao = filtroOrgao === 'SAMU' ? tiposSamu :
+    filtroOrgao === 'Defesa Civil' ? tiposDefesaCivil : [];
+
+  const tiposDisponiveis = filtroOrgao === 'SAMU'
+    ? tiposSamu
+    : filtroOrgao === 'Defesa Civil'
+      ? tiposDefesaCivil
+      : [];
 
   const urgenciasFiltradas = urgencias.filter((item) => {
     const dataValida = filtroData
@@ -75,9 +83,13 @@ export default function UrgenciasList() {
         : tiposDefesaCivil.includes(item.tipoUrgencia)
       : true;
 
-    return dataValida && tipoValido && orgaoValido;
+    const nomeValido = filtroNome
+      ? item.nome.toLowerCase().includes(filtroNome.toLowerCase())
+      : true;
+
+    return dataValida && tipoValido && orgaoValido && nomeValido;
   });
-  
+
   return (
     <div className="p-6 bg-[#D5EAF7] rounded-lg shadow-lg max-w-7xl mx-auto">
       <h1 className="text-3xl font-extrabold mb-8 text-[#000000] text-center">
@@ -114,6 +126,21 @@ export default function UrgenciasList() {
                 color: filtroData ? "#000000" : "transparent",
                 caretColor: "#000000",
               }}
+            />
+          </div>
+        </div>
+
+        {/* Campo Nome com Label e Ícone */}
+        <div className="flex flex-col">
+          <label className="mb-1 text-[#264D73] font-semibold">Buscar por Nome</label>
+          <div className="flex items-center border border-[#264D73] rounded p-2 bg-white">
+            <FaUser className="text-gray-500 mr-2" />
+            <input
+              type="text"
+              className="w-full outline-none text-[#000000] font-semibold bg-transparent"
+              placeholder="Digite o nome"
+              value={filtroNome}
+              onChange={(e) => setFiltroNome(e.target.value)}
             />
           </div>
         </div>
