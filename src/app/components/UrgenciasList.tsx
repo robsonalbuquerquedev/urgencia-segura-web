@@ -36,16 +36,24 @@ export default function UrgenciasList() {
   const [filtroNome, setFiltroNome] = useState<string>('');
 
   useEffect(() => {
-    const urgenciasRef = ref(database, 'urgencias/usuario');
+    const urgenciasRef = ref(database, 'urgencias');
     onValue(urgenciasRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const lista: Urgencia[] = Object.values(data);
-        setUrgencias(lista);
+        const todasUrgencias: Urgencia[] = [];
+
+        Object.values(data).forEach((urgenciasPorUsuario) => {
+          Object.values(urgenciasPorUsuario as Record<string, Urgencia>).forEach((u) => {
+            todasUrgencias.push(u);
+          });
+        });
+
+        setUrgencias(todasUrgencias);
       } else {
         setUrgencias([]);
       }
-      setCarregado(true); // só marca como carregado depois que terminar
+
+      setCarregado(true);
     });
   }, []);
 
@@ -84,7 +92,7 @@ export default function UrgenciasList() {
 
     return dataValida && tipoValido && orgaoValido && nomeValido;
   });
-  
+
   return (
     <div className="p-6 bg-[#D5EAF7] rounded-lg shadow-lg max-w-7xl mx-auto">
       <h1 className="text-3xl font-extrabold mb-8 text-[#000000] text-center">
