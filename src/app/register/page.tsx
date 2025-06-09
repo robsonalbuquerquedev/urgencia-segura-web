@@ -12,19 +12,23 @@ export default function RegisterPage() {
   const { register } = useAuth();
 
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [senha, setSenha] = useState('');
   const [role, setRole] = useState<'SAMU' | 'Defesa Civil'>('SAMU');
+  // Se quiser capturar o nome real, descomente e adicione campo no formulário:
+  // const [name, setName] = useState('');
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    register({
-      id: Date.now().toString(),
-      name: email,
-      role: role,
-    });
-
-    router.push('/login');
+    try {
+      // Passando email, senha, nome (usando email como nome provisório) e role
+      await register(email, senha, name, role);
+      router.push('/login');
+    } catch (error) {
+      alert('Erro ao registrar. Tente novamente.');
+      console.error('Erro no registro:', error);
+    }
   };
 
   return (
@@ -33,25 +37,38 @@ export default function RegisterPage() {
         <h2 className="text-2xl font-bold mb-6 text-[#264D73]">Cadastro</h2>
 
         {/* Campo Email com ícone */}
-        <div className="flex items-center border rounded p-2 mb-4 focus-within:ring-2 focus-within:ring-blue-500">
-          <FaEnvelope className="text-gray-400 mr-2" />
+        <div className="flex items-center border border-gray-300 rounded p-2 mb-4 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+          <FaEnvelope className="text-gray-500 mr-2" />
           <input
             type="email"
             placeholder="Digite seu email"
-            className="w-full outline-none placeholder:text-gray-400 placeholder:font-medium"
+            className="w-full bg-white text-black placeholder:text-black placeholder:font-normal font-medium outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
 
+        {/* Campo Nome */}
+        <div className="flex items-center border border-gray-300 rounded p-2 mb-4 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+          <FaUserShield className="text-gray-500 mr-2" />
+          <input
+            type="text"
+            placeholder="Digite seu nome"
+            className="w-full bg-white text-black placeholder:text-black placeholder:font-normal font-medium outline-none"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+
         {/* Campo Senha com ícone e mostrar/ocultar */}
-        <div className="flex items-center border rounded p-2 mb-4 focus-within:ring-2 focus-within:ring-blue-500">
-          <FaLock className="text-gray-400 mr-2" />
+        <div className="flex items-center border border-gray-300 rounded p-2 mb-4 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+          <FaLock className="text-gray-500 mr-2" />
           <input
             type={mostrarSenha ? 'text' : 'password'}
             placeholder="Digite sua senha"
-            className="w-full outline-none placeholder:text-gray-400 placeholder:font-medium"
+            className="w-full bg-white text-black placeholder:text-black placeholder:font-normal font-medium outline-none"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             required
@@ -68,7 +85,7 @@ export default function RegisterPage() {
             )}
           </button>
         </div>
-
+        
         {/* Campo Role com ícone */}
         <div className="flex items-center border rounded p-2 mb-4 focus-within:ring-2 focus-within:ring-blue-500">
           <FaUserShield className="text-gray-400 mr-2" />
