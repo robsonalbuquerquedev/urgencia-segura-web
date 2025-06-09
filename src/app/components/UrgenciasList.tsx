@@ -35,9 +35,6 @@ export default function UrgenciasList() {
   const [filtroData, setFiltroData] = useState<string>('');
   const [filtroNome, setFiltroNome] = useState<string>('');
 
-  const tiposSamu = ["Acidente", "Mal-estar", "Desmaio", "Queimadura", "Sangramento", "Mal súbito"];
-  const tiposDefesaCivil = ["Deslizamento", "Alagamento", "Incêndio Florestal", "Desabamento", "Vazamento de Gás", "Risco Estrutural"];
-
   useEffect(() => {
     const urgenciasRef = ref(database, 'urgencias/usuario');
     onValue(urgenciasRef, (snapshot) => {
