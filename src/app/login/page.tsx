@@ -55,7 +55,7 @@ export default function LoginPage() {
       const sucesso = await login(email, senha);
 
       if (sucesso) {
-        router.push('/');
+        router.push('/painel');
       } else {
         setErro('Email ou senha inválidos!');
       }
