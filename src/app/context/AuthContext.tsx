@@ -1,8 +1,8 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, User as FirebaseUser } from 'firebase/auth';
-import { auth } from '../lib/firebase'; // usa o auth do firebase.ts
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail as firebaseSendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 type User = {
   id: string;
@@ -14,9 +14,20 @@ type AuthContextType = {
   user: User | null;
   login: (email: string, senha: string) => Promise<boolean>;
   logout: () => void;
+  sendPasswordResetEmail: (email: string) => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const sendPasswordReset = async (email: string) => {
+  try {
+    await firebaseSendPasswordResetEmail(auth, email);
+    return true;
+  } catch (error) {
+    console.error('Erro ao enviar e-mail de redefinição:', error);
+    return false;
+  }
+};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -53,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, sendPasswordResetEmail: sendPasswordReset }}>
       {children}
     </AuthContext.Provider>
   );
