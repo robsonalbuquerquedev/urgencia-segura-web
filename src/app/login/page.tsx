@@ -43,6 +43,7 @@ export default function LoginPage() {
       setMensagemSucesso('E-mail enviado! Verifique sua caixa de entrada.');
       setMensagemErro('');
     } catch (error) {
+      console.error('Erro ao redefinir senha:', error); // Aqui você usa o error
       setMensagemErro('Erro ao enviar o e-mail. Verifique o endereço e tente novamente.');
       setMensagemSucesso('');
     }
@@ -110,7 +111,7 @@ export default function LoginPage() {
             )}
           </button>
         </div>
-        
+
         {/* Botão de login */}
         <button
           type="submit"

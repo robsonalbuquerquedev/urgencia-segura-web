@@ -57,7 +57,7 @@ export default function PainelPage() {
                 Object.entries(data).forEach(([uid, urgenciasPorUsuario]) => {
                     if (typeof urgenciasPorUsuario === 'object' && urgenciasPorUsuario !== null) {
                         Object.entries(urgenciasPorUsuario as Record<string, Urgencia>).forEach(
-                            ([_, urgencia]) => {
+                            ([, urgencia]) => {
                                 if (
                                     urgencia &&
                                     urgencia.nome &&
