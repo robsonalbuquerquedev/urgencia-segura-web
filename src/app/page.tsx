@@ -9,6 +9,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-200 p-8 text-center">
       <motion.h1
+        className="text-black text-2xl md:text-4xl font-bold text-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -17,6 +18,7 @@ export default function Home() {
       </motion.h1>
 
       <motion.p
+        className="text-black text-base md:text-lg mt-4 text-center"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.6 }}
@@ -24,7 +26,7 @@ export default function Home() {
         Este portal é exclusivo para agentes do SAMU e da Defesa Civil.
         Acesse seu painel para visualizar e responder às ocorrências de urgência.
       </motion.p>
-
+      
       <motion.div
         className="flex gap-4"
         initial={{ opacity: 0, y: 10 }}
