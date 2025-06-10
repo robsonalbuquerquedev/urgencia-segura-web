@@ -1,121 +1,59 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode
-} from 'react';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut,
-  User as FirebaseUser,
-  sendPasswordResetEmail as firebaseSendPasswordResetEmail
-} from 'firebase/auth';
-import { ref, set, get } from 'firebase/database';
-import { auth, database } from '../lib/firebase';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '../lib/firebase'; // usa o auth do firebase.ts
 
 type User = {
   id: string;
   name: string;
   email: string;
-  role: 'SAMU' | 'Defesa Civil';
 };
 
 type AuthContextType = {
   user: User | null;
-  loading: boolean; // << ADICIONADO AQUI
   login: (email: string, senha: string) => Promise<boolean>;
-  register: (
-    email: string,
-    senha: string,
-    name: string,
-    role: 'SAMU' | 'Defesa Civil'
-  ) => Promise<void>;
   logout: () => void;
-  sendPasswordResetEmail: (email: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // << AQUI
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        const snapshot = await get(ref(database, `usuarios_web/${firebaseUser.uid}`));
-        const userData = snapshot.val();
-
-        if (userData) {
-          setUser({
-            id: firebaseUser.uid,
-            name: userData.name,
-            email: firebaseUser.email || '',
-            role: userData.role
-          });
-        }
+        setUser({
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName || firebaseUser.email || '',
+          email: firebaseUser.email || '',
+        });
       } else {
         setUser(null);
       }
-      setLoading(false); // << GARANTE QUE SÓ PARA DE CARREGAR DEPOIS DO ESTADO DEFINIDO
     });
 
     return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, senha: string): Promise<boolean> => {
+  const login = async (email: string, senha: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, senha);
       return true;
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error('Erro ao logar:', error);
       return false;
     }
   };
 
-  const register = async (
-    email: string,
-    senha: string,
-    name: string,
-    role: 'SAMU' | 'Defesa Civil'
-  ) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-    const firebaseUser = userCredential.user;
-
-    const userData: User = {
-      id: firebaseUser.uid,
-      name,
-      email,
-      role
-    };
-
-    await set(ref(database, `usuarios_web/${firebaseUser.uid}`), userData);
-    setUser(userData);
-  };
-
-  const logout = () => {
-    signOut(auth);
+  const logout = async () => {
+    await signOut(auth);
     setUser(null);
   };
 
-  const sendPasswordResetEmail = async (email: string) => {
-    try {
-      await firebaseSendPasswordResetEmail(auth, email);
-    } catch (error) {
-      console.error('Erro ao enviar email de redefinição de senha:', error);
-      throw error;
-    }
-  };
-
   return (
-    <AuthContext.Provider
-      value={{ user, loading, login, register, logout, sendPasswordResetEmail }}
-    >
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
