@@ -3,11 +3,14 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import {
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  updateProfile,
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail as firebaseSendPasswordResetEmail
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth, database } from '../lib/firebase';
+import { ref, set } from 'firebase/database';
 
 type User = {
   id: string;
@@ -20,6 +23,7 @@ type AuthContextType = {
   login: (email: string, senha: string) => Promise<boolean>;
   logout: () => void;
   sendPasswordResetEmail: (email: string) => Promise<boolean>;
+  register: (email: string, senha: string, nome: string, role: string) => Promise<boolean>; // <-- Adiciona aqui
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,6 +57,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
+  const register = async (email: string, senha: string, nome: string, role: string) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+      const firebaseUser = userCredential.user;
+
+      // Atualiza o nome no perfil do Firebase Auth
+      await updateProfile(firebaseUser, { displayName: nome });
+
+      // Salva dados adicionais no Realtime Database
+      await set(ref(database, `usuarios_web/${firebaseUser.uid}`), {
+        email,
+        name: nome,
+        role,
+        uid: firebaseUser.uid,
+      });
+
+      // Define o usuário localmente
+      setUser({
+        id: firebaseUser.uid,
+        name: nome,
+        email,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao registrar usuário:', error);
+      return false;
+    }
+  };
+
   const login = async (email: string, senha: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, senha);
@@ -69,7 +103,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, sendPasswordResetEmail: sendPasswordReset }}>
+    <AuthContext.Provider value={{
+      user, login, logout, sendPasswordResetEmail: sendPasswordReset, register,
+    }}>
       {children}
     </AuthContext.Provider>
   );
