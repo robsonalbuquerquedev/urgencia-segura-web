@@ -27,6 +27,7 @@ interface Urgencia {
     localizacao: string;
     celular: string;
     orgao: string;
+    uid?: string;
 }
 
 export default function PainelPage() {
@@ -47,31 +48,47 @@ export default function PainelPage() {
         }
 
         const urgenciasRef = ref(database, 'urgencias');
-        onValue(urgenciasRef, (snapshot) => {
+
+        const unsubscribe = onValue(urgenciasRef, (snapshot) => {
             const data = snapshot.val();
+            const todasUrgencias: Urgencia[] = [];
+
             if (data) {
-                const todasUrgencias: Urgencia[] = [];
-
-                Object.values(data).forEach((urgenciasPorUsuario) => {
-                    Object.values(urgenciasPorUsuario as Record<string, Urgencia>).forEach((u) => {
-                        todasUrgencias.push(u);
-                    });
+                Object.entries(data).forEach(([uid, urgenciasPorUsuario]) => {
+                    if (typeof urgenciasPorUsuario === 'object' && urgenciasPorUsuario !== null) {
+                        Object.entries(urgenciasPorUsuario as Record<string, Urgencia>).forEach(
+                            ([_, urgencia]) => {
+                                if (
+                                    urgencia &&
+                                    urgencia.nome &&
+                                    urgencia.dataHora &&
+                                    urgencia.tipoUrgencia
+                                ) {
+                                    todasUrgencias.push({ ...urgencia, uid });
+                                }
+                            }
+                        );
+                    }
                 });
-
-                setUrgencias(todasUrgencias);
-            } else {
-                setUrgencias([]);
             }
 
+            console.log("Urgências carregadas:", todasUrgencias);
+            setUrgencias(todasUrgencias);
             setCarregado(true);
         });
+
+        return () => {
+            // remove o listener para evitar vazamento de memória
+            unsubscribe();
+        };
     }, [user, router]);
 
-    const formatarDataParaInput = (dataHora: string) => {
-        if (!dataHora) return '';
+    const formatarDataParaInput = (dataHora: string | undefined) => {
+        if (!dataHora || typeof dataHora !== 'string' || !dataHora.includes('/')) return '';
         const [data] = dataHora.split(' ');
         const [dia, mes, ano] = data.split('/');
-        return `${ano}-${mes}-${dia}`;
+        if (!dia || !mes || !ano) return '';
+        return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
     };
 
     const tiposDisponiveis = [
