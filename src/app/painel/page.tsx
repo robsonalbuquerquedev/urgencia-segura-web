@@ -139,7 +139,7 @@ export default function PainelPage() {
         if (!uid || !id) return;
 
         const caminho = `urgencias/${uid}/${id}`;
-        const updates: any = {
+        const updates: Record<string, unknown> = {
             status: novoStatus,
         };
 
@@ -156,7 +156,7 @@ export default function PainelPage() {
         } else {
             updates.dataHoraFim = null;
         }
-
+        
         try {
             await update(ref(database, caminho), updates);
             console.log("Status atualizado com sucesso!");
