@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { database } from '../lib/firebase';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, update } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
@@ -15,7 +15,8 @@ import {
     FaPhoneAlt,
     FaMapMarkerAlt,
     FaBuilding,
-    FaListUl
+    FaListUl,
+    FaClock
 } from 'react-icons/fa';
 
 interface Urgencia {
@@ -23,11 +24,14 @@ interface Urgencia {
     idade: string;
     observacao: string;
     tipoUrgencia: string;
-    dataHora: string;
+    dataHoraInicio: string;
     localizacao: string;
     celular: string;
     orgao: string;
+    status?: string;
+    dataHoraFim?: string;
     uid?: string;
+    id?: string;
 }
 
 export default function PainelPage() {
@@ -57,14 +61,19 @@ export default function PainelPage() {
                 Object.entries(data).forEach(([uid, urgenciasPorUsuario]) => {
                     if (typeof urgenciasPorUsuario === 'object' && urgenciasPorUsuario !== null) {
                         Object.entries(urgenciasPorUsuario as Record<string, Urgencia>).forEach(
-                            ([, urgencia]) => {
+                            ([id, urgencia]) => {
                                 if (
                                     urgencia &&
                                     urgencia.nome &&
-                                    urgencia.dataHora &&
+                                    urgencia.dataHoraInicio &&
                                     urgencia.tipoUrgencia
                                 ) {
-                                    todasUrgencias.push({ ...urgencia, uid });
+                                    todasUrgencias.push({
+                                        ...urgencia,
+                                        dataHoraInicio: urgencia.dataHoraInicio,
+                                        uid,
+                                        id
+                                    });
                                 }
                             }
                         );
@@ -83,9 +92,9 @@ export default function PainelPage() {
         };
     }, [user, router]);
 
-    const formatarDataParaInput = (dataHora: string | undefined) => {
-        if (!dataHora || typeof dataHora !== 'string' || !dataHora.includes('/')) return '';
-        const [data] = dataHora.split(' ');
+    const formatarDataParaInput = (dataHoraInicio: string | undefined) => {
+        if (!dataHoraInicio || typeof dataHoraInicio !== 'string' || !dataHoraInicio.includes('/')) return '';
+        const [data] = dataHoraInicio.split(' ');
         const [dia, mes, ano] = data.split('/');
         if (!dia || !mes || !ano) return '';
         return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
@@ -101,7 +110,7 @@ export default function PainelPage() {
 
     const urgenciasFiltradas = urgencias.filter((item) => {
         const dataValida = filtroData
-            ? formatarDataParaInput(item.dataHora) === filtroData
+            ? formatarDataParaInput(item.dataHoraInicio) === filtroData
             : true;
 
         const tipoValido = filtroTipo
@@ -119,48 +128,69 @@ export default function PainelPage() {
         return dataValida && tipoValido && orgaoValido && nomeValido;
     });
 
+    const atualizarStatus = async (
+        uid: string | undefined,
+        id: string | undefined,
+        novoStatus: string
+    ) => {
+        if (!uid || !id) return;
+
+        const caminho = `urgencias/${uid}/${id}`;
+        const updates: any = {
+            status: novoStatus,
+        };
+
+        if (novoStatus === "concluido") {
+            const agora = new Date();
+            const dataHoraFim = agora.toLocaleString("pt-BR", {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+            updates.dataHoraFim = dataHoraFim;
+        } else {
+            updates.dataHoraFim = null;
+        }
+
+        try {
+            await update(ref(database, caminho), updates);
+            console.log("Status atualizado com sucesso!");
+        } catch (error) {
+            console.error("Erro ao atualizar o status:", error);
+        }
+    };
+
     return (
         <div className="p-6 bg-[#D5EAF7] rounded-lg shadow-lg max-w-7xl mx-auto">
             <h1 className="text-3xl font-extrabold mb-8 text-[#000000] text-center">
                 Solicitações de Urgência
             </h1>
 
-            <div className="mb-8 flex flex-col md:flex-row gap-4 justify-center">
+            <div className="mb-8 flex flex-col md:flex-row gap-4 justify-center flex-wrap">
 
-                <div className="flex flex-col">
+                {/* Cada campo e botão recebe a mesma largura */}
+                <div className="flex flex-col w-64">
                     <label className="mb-1 text-[#264D73] font-semibold">Selecione a Data</label>
                     <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white relative">
-
-                        {/* Ícone */}
                         <FaCalendarAlt className="text-gray-500 mr-2 z-10" />
-
-                        {/* Placeholder visual em formato brasileiro */}
                         {!filtroData && (
-                            <span
-                                className="absolute left-9 text-gray-400 font-medium pointer-events-none z-10"
-                                style={{ top: '50%', transform: 'translateY(-50%)' }}
-                            >
+                            <span className="absolute left-9 text-gray-400 font-medium pointer-events-none z-10" style={{ top: '50%', transform: 'translateY(-50%)' }}>
                                 dd/mm/aaaa
                             </span>
                         )}
-
-                        {/* Campo de data */}
                         <input
                             type="date"
                             className="w-full outline-none text-[#000000] font-semibold bg-transparent relative z-20"
                             value={filtroData}
                             onChange={(e) => setFiltroData(e.target.value)}
-                            style={{
-                                // Força transparência total para manter o span visível
-                                color: filtroData ? "#000000" : "transparent",
-                                caretColor: "#000000",
-                            }}
+                            style={{ color: filtroData ? "#000000" : "transparent", caretColor: "#000000" }}
                         />
                     </div>
                 </div>
 
-                {/* Campo Nome com Label e Ícone */}
-                <div className="flex flex-col">
+                <div className="flex flex-col w-64">
                     <label className="mb-1 text-[#264D73] font-semibold">Buscar por Nome</label>
                     <div className="flex items-center border border-[#264D73] rounded p-2 bg-white">
                         <FaUser className="text-gray-500 mr-2" />
@@ -174,8 +204,7 @@ export default function PainelPage() {
                     </div>
                 </div>
 
-                {/* Campo Órgão com Label e Ícone */}
-                <div className="flex flex-col">
+                <div className="flex flex-col w-64">
                     <label className="mb-1 text-[#264D73] font-semibold">Selecione o Órgão</label>
                     <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
                         <FaBuilding className="text-gray-500 mr-2" />
@@ -194,9 +223,8 @@ export default function PainelPage() {
                     </div>
                 </div>
 
-                {/* Campo Tipo (condicional) com Label e Ícone */}
                 {filtroOrgao && (
-                    <div className="flex flex-col">
+                    <div className="flex flex-col w-64">
                         <label className="mb-1 text-[#264D73] font-semibold">Selecione o Tipo</label>
                         <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
                             <FaListUl className="text-gray-500 mr-2" />
@@ -207,16 +235,26 @@ export default function PainelPage() {
                             >
                                 <option value="">Todos os Tipos</option>
                                 {tiposDisponiveis.map((tipo) => (
-                                    <option key={tipo} value={tipo}>
-                                        {tipo}
-                                    </option>
+                                    <option key={tipo} value={tipo}>{tipo}</option>
                                 ))}
                             </select>
                         </div>
                     </div>
                 )}
-            </div>
 
+                <button
+                    onClick={() => {
+                        setFiltroData('');
+                        setFiltroTipo('');
+                        setFiltroOrgao('');
+                        setFiltroNome('');
+                    }}
+                    className="w-64 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-gray-400"
+                >
+                    Limpar Filtros
+                </button>
+            </div>
+            
             {carregado ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {urgenciasFiltradas.length > 0 ? (
@@ -278,8 +316,16 @@ export default function PainelPage() {
                                     <span className="font-semibold text-[#264D73] flex items-center gap-1">
                                         <FaCalendarAlt /> Data e Hora:
                                     </span>
-                                    <span className="text-[#000000]">{item.dataHora}</span>
+                                    <span className="text-[#000000]">{item.dataHoraInicio}</span>
                                 </div>
+                                {item.dataHoraFim && (
+                                    <div className="flex justify-between mb-3 items-center">
+                                        <span className="font-semibold text-[#264D73] flex items-center gap-1">
+                                            <FaCalendarAlt /> Finalizado em:
+                                        </span>
+                                        <span className="text-[#000000]">{item.dataHoraFim}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between">
                                     <span className="font-semibold text-[#264D73] flex items-center gap-1">
                                         <FaMapMarkerAlt />
@@ -294,6 +340,44 @@ export default function PainelPage() {
                                     >
                                         {item.localizacao}
                                     </a>
+                                </div>
+                                <div className="flex justify-between mb-3 items-center">
+                                    <span className="font-semibold text-[#264D73] flex items-center gap-1">
+                                        <FaClock /> Status:
+                                    </span>
+                                    <span className={`text-white font-semibold px-2 py-1 rounded ${item.status === "novo" ? "bg-yellow-400" :
+                                        item.status === "pendente" ? "bg-orange-400" :
+                                            item.status === "em_andamento" ? "bg-blue-500" :
+                                                item.status === "concluido" ? "bg-green-600" :
+                                                    "bg-gray-400 transition duration-300 cursor-pointer"
+                                        }`}>
+                                        {item.status}
+                                    </span>
+                                </div>
+                                <div className="mt-4 flex gap-2">
+                                    <button
+                                        disabled={item.status === "pendente"}
+                                        onClick={() => atualizarStatus(item.uid, item.id, "pendente")}
+                                        className={`px-3 py-1 rounded text-white ${item.status === "pendente" ? "bg-orange-300 cursor-not-allowed" : "bg-orange-400 hover:bg-orange-500 transition duration-300 cursor-pointer"
+                                            }`}
+                                    >
+                                        Marcar como Pendente
+                                    </button>
+                                    <button
+                                        disabled={item.status === "em_andamento"}
+                                        onClick={() => atualizarStatus(item.uid, item.id, "em_andamento")}
+                                        className={`px-3 py-1 rounded text-white ${item.status === "em_andamento" ? "bg-blue-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 transition duration-300 cursor-pointer"}`}
+                                    >
+                                        Em Andamento
+                                    </button>
+
+                                    <button
+                                        disabled={item.status === "concluido"}
+                                        onClick={() => atualizarStatus(item.uid, item.id, "concluido")}
+                                        className={`px-3 py-1 rounded text-white ${item.status === "concluido" ? "bg-green-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700 transition duration-300 cursor-pointer"}`}
+                                    >
+                                        Concluir
+                                    </button>
                                 </div>
                             </div>
                         ))
