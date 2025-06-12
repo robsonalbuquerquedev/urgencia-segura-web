@@ -39,7 +39,8 @@ export default function PainelPage() {
     const [carregado, setCarregado] = useState(false);
     const [filtroOrgao, setFiltroOrgao] = useState<string>('');
     const [filtroTipo, setFiltroTipo] = useState<string>('');
-    const [filtroData, setFiltroData] = useState<string>('');
+    const [filtroDataInicio, setFiltroDataInicio] = useState('');
+    const [filtroDataFim, setFiltroDataFim] = useState('');
     const [filtroNome, setFiltroNome] = useState<string>('');
 
     const { user } = useAuth();
@@ -109,9 +110,11 @@ export default function PainelPage() {
     ];
 
     const urgenciasFiltradas = urgencias.filter((item) => {
-        const dataValida = filtroData
-            ? formatarDataParaInput(item.dataHoraInicio) === filtroData
-            : true;
+        const dataItem = formatarDataParaInput(item.dataHoraInicio);
+
+        const dataValida =
+            (!filtroDataInicio || dataItem >= filtroDataInicio) &&
+            (!filtroDataFim || dataItem <= filtroDataFim);
 
         const tipoValido = filtroTipo
             ? item.tipoUrgencia === filtroTipo
@@ -171,11 +174,12 @@ export default function PainelPage() {
             <div className="mb-8 flex flex-col md:flex-row gap-4 justify-center flex-wrap">
 
                 {/* Cada campo e botão recebe a mesma largura */}
+                {/* Campo de data de início */}
                 <div className="flex flex-col w-64">
-                    <label className="mb-1 text-[#264D73] font-semibold">Selecione a Data</label>
-                    <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white relative">
+                    <label className="mb-1 text-[#264D73] font-semibold">Data Início</label>
+                    <div className="flex items-center border border-[#264D73] rounded p-2 bg-white relative focus-within:ring-2 focus-within:ring-blue-500">
                         <FaCalendarAlt className="text-gray-500 mr-2 z-10" />
-                        {!filtroData && (
+                        {!filtroDataInicio && (
                             <span className="absolute left-9 text-gray-400 font-medium pointer-events-none z-10" style={{ top: '50%', transform: 'translateY(-50%)' }}>
                                 dd/mm/aaaa
                             </span>
@@ -183,9 +187,29 @@ export default function PainelPage() {
                         <input
                             type="date"
                             className="w-full outline-none text-[#000000] font-semibold bg-transparent relative z-20"
-                            value={filtroData}
-                            onChange={(e) => setFiltroData(e.target.value)}
-                            style={{ color: filtroData ? "#000000" : "transparent", caretColor: "#000000" }}
+                            value={filtroDataInicio}
+                            onChange={(e) => setFiltroDataInicio(e.target.value)}
+                            style={{ color: filtroDataInicio ? "#000000" : "transparent", caretColor: "#000000" }}
+                        />
+                    </div>
+                </div>
+
+                {/* Campo de data de fim */}
+                <div className="flex flex-col w-64">
+                    <label className="mb-1 text-[#264D73] font-semibold">Data Fim</label>
+                    <div className="flex items-center border border-[#264D73] rounded p-2 bg-white relative focus-within:ring-2 focus-within:ring-blue-500">
+                        <FaCalendarAlt className="text-gray-500 mr-2 z-10" />
+                        {!filtroDataFim && (
+                            <span className="absolute left-9 text-gray-400 font-medium pointer-events-none z-10" style={{ top: '50%', transform: 'translateY(-50%)' }}>
+                                dd/mm/aaaa
+                            </span>
+                        )}
+                        <input
+                            type="date"
+                            className="w-full outline-none text-[#000000] font-semibold bg-transparent relative z-20"
+                            value={filtroDataFim}
+                            onChange={(e) => setFiltroDataFim(e.target.value)}
+                            style={{ color: filtroDataFim ? "#000000" : "transparent", caretColor: "#000000" }}
                         />
                     </div>
                 </div>
@@ -244,7 +268,8 @@ export default function PainelPage() {
 
                 <button
                     onClick={() => {
-                        setFiltroData('');
+                        setFiltroDataInicio('');
+                        setFiltroDataFim('');
                         setFiltroTipo('');
                         setFiltroOrgao('');
                         setFiltroNome('');
@@ -254,7 +279,7 @@ export default function PainelPage() {
                     Limpar Filtros
                 </button>
             </div>
-            
+
             {carregado ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {urgenciasFiltradas.length > 0 ? (
