@@ -14,7 +14,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [senha, setSenha] = useState('');
-  const [role, setRole] = useState<'SAMU' | 'Defesa Civil'>('SAMU');
+  const [role, setRole] = useState<'Guarda Municipal' | 'Defesa Civil'>('Guarda Municipal');
   // Se quiser capturar o nome real, descomente e adicione campo no formulário:
   // const [name, setName] = useState('');
 
@@ -85,20 +85,20 @@ export default function RegisterPage() {
             )}
           </button>
         </div>
-        
+
         {/* Campo Role com ícone */}
         <div className="flex items-center border rounded p-2 mb-4 focus-within:ring-2 focus-within:ring-blue-500">
           <FaUserShield className="text-gray-400 mr-2" />
           <select
             value={role}
-            onChange={(e) => setRole(e.target.value as 'SAMU' | 'Defesa Civil')}
+            onChange={(e) => setRole(e.target.value as 'Guarda Municipal' | 'Defesa Civil')}
             className="w-full outline-none text-gray-700 font-medium"
           >
-            <option value="SAMU">SAMU</option>
+            <option value="Guarda Municipal">Guarda Municipal</option>
             <option value="Defesa Civil">Defesa Civil</option>
           </select>
         </div>
-
+        
         <button
           type="submit"
           className="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800 cursor-pointer transition-colors"
