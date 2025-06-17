@@ -9,8 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "firebase": "^11.9.0",
     "framer-motion": "^12.16.0",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "next": "^15.3.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

@@ -18,21 +18,8 @@ import {
     FaListUl,
     FaClock
 } from 'react-icons/fa';
-
-interface Urgencia {
-    nome: string;
-    idade: string;
-    observacao: string;
-    tipoUrgencia: string;
-    dataHoraInicio: string;
-    localizacao: string;
-    celular: string;
-    orgao: string;
-    status?: string;
-    dataHoraFim?: string;
-    uid?: string;
-    id?: string;
-}
+import { Urgencia } from '../../types/urgencia';
+import ReportModalExport from '../components/ReportModalExport';
 
 export default function PainelPage() {
     const [urgencias, setUrgencias] = useState<Urgencia[]>([]);
@@ -42,6 +29,7 @@ export default function PainelPage() {
     const [filtroDataInicio, setFiltroDataInicio] = useState('');
     const [filtroDataFim, setFiltroDataFim] = useState('');
     const [filtroNome, setFiltroNome] = useState<string>('');
+    const [filtroStatus, setFiltroStatus] = useState<string>(''); // 👈 novo estado
 
     const { user } = useAuth();
     const router = useRouter();
@@ -128,7 +116,11 @@ export default function PainelPage() {
             ? item.nome.toLowerCase().includes(filtroNome.toLowerCase())
             : true;
 
-        return dataValida && tipoValido && orgaoValido && nomeValido;
+        const statusValido = filtroStatus
+            ? item.status === filtroStatus
+            : true;
+
+        return dataValida && tipoValido && orgaoValido && nomeValido && statusValido;
     });
 
     const atualizarStatus = async (
@@ -156,7 +148,7 @@ export default function PainelPage() {
         } else {
             updates.dataHoraFim = null;
         }
-        
+
         try {
             await update(ref(database, caminho), updates);
             console.log("Status atualizado com sucesso!");
@@ -173,7 +165,6 @@ export default function PainelPage() {
 
             <div className="mb-8 flex flex-col md:flex-row gap-4 justify-center flex-wrap">
 
-                {/* Cada campo e botão recebe a mesma largura */}
                 {/* Campo de data de início */}
                 <div className="flex flex-col w-64">
                     <label className="mb-1 text-[#264D73] font-semibold">Data Início</label>
@@ -241,7 +232,7 @@ export default function PainelPage() {
                             }}
                         >
                             <option value="">Todos os Órgãos</option>
-                            <option value="SAMU">SAMU</option>
+                            <option value="Guarda Municipal">Guarda Municipal</option>
                             <option value="Defesa Civil">Defesa Civil</option>
                         </select>
                     </div>
@@ -265,19 +256,44 @@ export default function PainelPage() {
                         </div>
                     </div>
                 )}
+                {/* Campo de filtro por status */}
+                <div className="flex flex-col w-64">
+                    <label className="mb-1 text-[#264D73] font-semibold">Status da Solicitação</label>
+                    <div className="flex items-center border border-[#264D73] rounded p-2 bg-white focus-within:ring-2 focus-within:ring-blue-500">
+                        <FaListUl className="text-gray-500 mr-2" />
+                        <select
+                            className="w-full outline-none text-[#000000] font-semibold bg-transparent"
+                            value={filtroStatus}
+                            onChange={(e) => setFiltroStatus(e.target.value)}
+                        >
+                            <option value="">Todos os Status</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="em_andamento">Em Andamento</option>
+                            <option value="concluido">Concluído</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="flex flex-col md:flex-row gap-3 items-center justify-center w-full md:mt-auto">
+                    <button
+                        onClick={() => {
+                            setFiltroDataInicio('');
+                            setFiltroDataFim('');
+                            setFiltroTipo('');
+                            setFiltroOrgao('');
+                            setFiltroNome('');
+                            setFiltroStatus('');
+                        }}
+                        className="px-4 py-2 bg-gray-100 text-gray-800 font-semibold rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-40 cursor-pointer"
+                    >
+                        🧹 Limpar Filtros
+                    </button>
 
-                <button
-                    onClick={() => {
-                        setFiltroDataInicio('');
-                        setFiltroDataFim('');
-                        setFiltroTipo('');
-                        setFiltroOrgao('');
-                        setFiltroNome('');
-                    }}
-                    className="w-64 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-gray-400"
-                >
-                    Limpar Filtros
-                </button>
+                    <ReportModalExport
+                        urgencias={urgencias}
+                        filtroDataInicio={filtroDataInicio}
+                        filtroDataFim={filtroDataFim}
+                    />
+                </div>
             </div>
 
             {carregado ? (
