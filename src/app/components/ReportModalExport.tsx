@@ -4,6 +4,7 @@ import { FaFileCsv, FaFilePdf } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Urgencia } from '../../types/urgencia';
+import { useAuth } from '../context/AuthContext';
 
 type RelatorioModalProps = {
     urgencias: Urgencia[];
@@ -16,6 +17,7 @@ export default function RelatorioModal({
     filtroDataInicio,
     filtroDataFim,
 }: RelatorioModalProps) {
+    const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [contagem, setContagem] = useState({
         novo: 0,
@@ -55,22 +57,40 @@ export default function RelatorioModal({
 
     const exportarCSV = () => {
         const linhas = [
-            ['Status', 'Quantidade'],
-            ['Novo', contagem.novo],
-            ['Pendente', contagem.pendente],
-            ['Em Andamento', contagem.em_andamento],
-            ['Concluído', contagem.concluido],
+            [`Órgão: ${user?.role || 'Não informado'}`],
+            [],
+            [
+                'Nome',
+                'Idade',
+                'Tipo',
+                'Início',
+                'Fim',
+                'Localização',
+                'Celular',
+                'Órgão',
+                'Status'
+            ],
+            ...urgencias.map((u) => [
+                u.nome,
+                u.idade,
+                u.tipoUrgencia,
+                u.dataHoraInicio,
+                u.dataHoraFim || 'N/A',
+                u.localizacao,
+                u.celular,
+                u.orgao,
+                u.status || 'N/A',
+            ])
         ];
 
         const csvContent = '\uFEFF' + linhas.map((linha) => linha.join(',')).join('\n');
-        // Adicionamos '\uFEFF' no início para garantir que o Excel interprete como UTF-8
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
 
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'relatorio_urgencias.csv');
+        link.setAttribute('download', 'relatorio_detalhado.csv');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -78,20 +98,40 @@ export default function RelatorioModal({
 
     const exportarPDF = () => {
         const doc = new jsPDF();
-        doc.text('Relatório de Ocorrências', 14, 20);
+
+        // Título com o órgão
+        doc.setFontSize(14);
+        doc.text(`Relatório Detalhado de Ocorrências`, 14, 20);
+        doc.setFontSize(11);
+        doc.text(`Órgão: ${user?.role || 'Não informado'}`, 14, 28);
 
         autoTable(doc, {
-            head: [['Status', 'Quantidade']],
-            body: [
-                ['Novo', contagem.novo],
-                ['Pendente', contagem.pendente],
-                ['Em Andamento', contagem.em_andamento],
-                ['Concluído', contagem.concluido],
-            ],
-            startY: 30,
+            head: [[
+                'Nome',
+                'Idade',
+                'Tipo',
+                'Início',
+                'Fim',
+                'Localização',
+                'Celular',
+                'Órgão',
+                'Status',
+            ]],
+            body: urgencias.map((u) => [
+                u.nome,
+                u.idade,
+                u.tipoUrgencia,
+                u.dataHoraInicio,
+                u.dataHoraFim || 'N/A',
+                u.localizacao,
+                u.celular,
+                u.orgao,
+                u.status || 'N/A',
+            ]),
+            startY: 35,
         });
 
-        doc.save('relatorio_urgencias.pdf');
+        doc.save('relatorio_detalhado.pdf');
     };
 
     return (
