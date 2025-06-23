@@ -14,7 +14,6 @@ import {
     FaWhatsapp,
     FaPhoneAlt,
     FaMapMarkerAlt,
-    FaBuilding,
     FaListUl,
     FaClock
 } from 'react-icons/fa';
