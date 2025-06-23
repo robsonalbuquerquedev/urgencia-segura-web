@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { database } from '../lib/firebase';
-import { ref, onValue, update } from 'firebase/database';
+import { ref, onValue, update, ref as dbRef } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
@@ -40,11 +40,13 @@ export default function PainelPage() {
             return;
         }
 
-        const urgenciasRef = ref(database, 'urgencias');
+        setFiltroOrgao(user.role);
+
+        const urgenciasRef = dbRef(database, 'urgencias');
 
         const unsubscribe = onValue(urgenciasRef, (snapshot) => {
             const data = snapshot.val();
-            const todasUrgencias: Urgencia[] = [];
+            const urgenciasDoOrgao: Urgencia[] = [];
 
             if (data) {
                 Object.entries(data).forEach(([uid, urgenciasPorUsuario]) => {
@@ -55,9 +57,10 @@ export default function PainelPage() {
                                     urgencia &&
                                     urgencia.nome &&
                                     urgencia.dataHoraInicio &&
-                                    urgencia.tipoUrgencia
+                                    urgencia.tipoUrgencia &&
+                                    urgencia.orgao === user.role // <- aqui filtramos pelo órgão
                                 ) {
-                                    todasUrgencias.push({
+                                    urgenciasDoOrgao.push({
                                         ...urgencia,
                                         dataHoraInicio: urgencia.dataHoraInicio,
                                         uid,
@@ -70,13 +73,12 @@ export default function PainelPage() {
                 });
             }
 
-            console.log("Urgências carregadas:", todasUrgencias);
-            setUrgencias(todasUrgencias);
+            console.log(`Urgências carregadas para ${user.role}:`, urgenciasDoOrgao);
+            setUrgencias(urgenciasDoOrgao);
             setCarregado(true);
         });
 
         return () => {
-            // remove o listener para evitar vazamento de memória
             unsubscribe();
         };
     }, [user, router]);
@@ -219,43 +221,24 @@ export default function PainelPage() {
                     </div>
                 </div>
 
+                {/* Campo de filtro por tipo de urgência */}
                 <div className="flex flex-col w-64">
-                    <label className="mb-1 text-[#264D73] font-semibold">Selecione o Órgão</label>
+                    <label className="mb-1 text-[#264D73] font-semibold">Selecione o Tipo</label>
                     <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
-                        <FaBuilding className="text-gray-500 mr-2" />
+                        <FaListUl className="text-gray-500 mr-2" />
                         <select
                             className="w-full outline-none text-[#000000] font-semibold bg-transparent"
-                            value={filtroOrgao}
-                            onChange={(e) => {
-                                setFiltroOrgao(e.target.value);
-                                setFiltroTipo('');
-                            }}
+                            value={filtroTipo}
+                            onChange={(e) => setFiltroTipo(e.target.value)}
                         >
-                            <option value="">Todos os Órgãos</option>
-                            <option value="Guarda Municipal">Guarda Municipal</option>
-                            <option value="Defesa Civil">Defesa Civil</option>
+                            <option value="">Todos os Tipos</option>
+                            {tiposDisponiveis.map((tipo) => (
+                                <option key={tipo} value={tipo}>{tipo}</option>
+                            ))}
                         </select>
                     </div>
                 </div>
 
-                {filtroOrgao && (
-                    <div className="flex flex-col w-64">
-                        <label className="mb-1 text-[#264D73] font-semibold">Selecione o Tipo</label>
-                        <div className="flex items-center border border-[#264D73] rounded p-2 focus-within:ring-2 focus-within:ring-blue-500 bg-white">
-                            <FaListUl className="text-gray-500 mr-2" />
-                            <select
-                                className="w-full outline-none text-[#000000] font-semibold bg-transparent"
-                                value={filtroTipo}
-                                onChange={(e) => setFiltroTipo(e.target.value)}
-                            >
-                                <option value="">Todos os Tipos</option>
-                                {tiposDisponiveis.map((tipo) => (
-                                    <option key={tipo} value={tipo}>{tipo}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                )}
                 {/* Campo de filtro por status */}
                 <div className="flex flex-col w-64">
                     <label className="mb-1 text-[#264D73] font-semibold">Status da Solicitação</label>
@@ -267,6 +250,7 @@ export default function PainelPage() {
                             onChange={(e) => setFiltroStatus(e.target.value)}
                         >
                             <option value="">Todos os Status</option>
+                            <option value="novo">Novo</option>
                             <option value="pendente">Pendente</option>
                             <option value="em_andamento">Em Andamento</option>
                             <option value="concluido">Concluído</option>

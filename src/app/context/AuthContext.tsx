@@ -10,12 +10,13 @@ import {
   sendPasswordResetEmail as firebaseSendPasswordResetEmail
 } from 'firebase/auth';
 import { auth, database } from '../lib/firebase';
-import { ref, set } from 'firebase/database';
+import { get, set, ref as dbRef } from 'firebase/database';
 
 type User = {
   id: string;
   name: string;
   email: string;
+  role: string;
 };
 
 type AuthContextType = {
@@ -42,13 +43,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        setUser({
-          id: firebaseUser.uid,
-          name: firebaseUser.displayName || firebaseUser.email || '',
-          email: firebaseUser.email || '',
-        });
+        try {
+          const snapshot = await get(dbRef(database, `usuarios_web/${firebaseUser.uid}`));
+          const userData = snapshot.val();
+
+          setUser({
+            id: firebaseUser.uid,
+            name: firebaseUser.displayName || firebaseUser.email || '',
+            email: firebaseUser.email || '',
+            role: userData?.role || '', // <- pega o role
+          });
+        } catch (error) {
+          console.error('Erro ao buscar dados do usuário:', error);
+        }
       } else {
         setUser(null);
       }
@@ -66,18 +75,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await updateProfile(firebaseUser, { displayName: nome });
 
       // Salva dados adicionais no Realtime Database
-      await set(ref(database, `usuarios_web/${firebaseUser.uid}`), {
+      await set(dbRef(database, `usuarios_web/${firebaseUser.uid}`), {
         email,
         name: nome,
         role,
         uid: firebaseUser.uid,
       });
 
-      // Define o usuário localmente
+      // Define o usuário localmente com o role incluído
       setUser({
         id: firebaseUser.uid,
         name: nome,
         email,
+        role,
       });
 
       return true;
