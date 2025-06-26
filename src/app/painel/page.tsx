@@ -33,6 +33,7 @@ export default function PainelPage() {
     const [filtroNome, setFiltroNome] = useState<string>('');
     const [filtroStatus, setFiltroStatus] = useState<string>('');
     const [fotoAberta, setFotoAberta] = useState(false);
+    const [fotoSelecionadaUrl, setFotoSelecionadaUrl] = useState<string | null>(null);
 
     const { user } = useAuth();
     const router = useRouter();
@@ -85,6 +86,22 @@ export default function PainelPage() {
             unsubscribe();
         };
     }, [user, router]);
+
+    useEffect(() => {
+        const handleEsc = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setFotoAberta(false);
+            }
+        };
+
+        if (fotoAberta) {
+            window.addEventListener("keydown", handleEsc);
+        }
+
+        return () => {
+            window.removeEventListener("keydown", handleEsc);
+        };
+    }, [fotoAberta]);
 
     const formatarDataParaInput = (dataHoraInicio: string | undefined) => {
         if (!dataHoraInicio || typeof dataHoraInicio !== 'string' || !dataHoraInicio.includes('/')) return '';
@@ -376,7 +393,10 @@ export default function PainelPage() {
                                             Foto da ocorrência:
                                         </span>
                                         <button
-                                            onClick={() => setFotoAberta(true)}
+                                            onClick={() => {
+                                                setFotoSelecionadaUrl(item.fotoUrl || null);
+                                                setFotoAberta(true);
+                                            }}
                                             className="px-2 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition duration-200 cursor-pointer flex items-center gap-1"
                                             title="Visualizar a foto da ocorrência"
                                         >
@@ -384,14 +404,17 @@ export default function PainelPage() {
                                         </button>
                                     </div>
                                 )}
-                                {fotoAberta && (
+                                {fotoAberta && fotoSelecionadaUrl && (
                                     <AnimatePresence>
                                         <motion.div
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
                                             className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center"
-                                            onClick={() => setFotoAberta(false)} // 👈 Fecha ao clicar no fundo
+                                            onClick={() => {
+                                                setFotoAberta(false);
+                                                setFotoSelecionadaUrl(null);
+                                            }}
                                         >
                                             <motion.div
                                                 initial={{ scale: 0.8, opacity: 0 }}
@@ -399,17 +422,20 @@ export default function PainelPage() {
                                                 exit={{ scale: 0.8, opacity: 0 }}
                                                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                                                 className="relative bg-white p-4 rounded-lg shadow-lg max-w-2xl w-full"
-                                                onClick={(e) => e.stopPropagation()} // 👈 Impede que clique interno feche
+                                                onClick={(e) => e.stopPropagation()}
                                             >
                                                 <button
-                                                    onClick={() => setFotoAberta(false)}
-                                                    className="absolute top-2 right-2 text-gray-700 hover:text-red-600 text-xl font-bold cursor-pointer" // 👈 Cursor adicionado
+                                                    onClick={() => {
+                                                        setFotoAberta(false);
+                                                        setFotoSelecionadaUrl(null);
+                                                    }}
+                                                    className="absolute top-2 right-2 text-gray-700 hover:text-red-600 text-xl font-bold cursor-pointer"
                                                     title="Fechar imagem"
                                                 >
                                                     ×
                                                 </button>
                                                 <img
-                                                    src={item.fotoUrl}
+                                                    src={fotoSelecionadaUrl}
                                                     alt="Foto da ocorrência"
                                                     className="w-full rounded max-h-[80vh] object-contain"
                                                 />
