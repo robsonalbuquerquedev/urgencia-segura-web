@@ -15,8 +15,11 @@ import {
     FaPhoneAlt,
     FaMapMarkerAlt,
     FaListUl,
-    FaClock
+    FaClock,
+    FaCamera,
+    FaEye
 } from 'react-icons/fa';
+import { motion, AnimatePresence } from "framer-motion";
 import { Urgencia } from '../../types/urgencia';
 import ReportModalExport from '../components/ReportModalExport';
 
@@ -28,7 +31,8 @@ export default function PainelPage() {
     const [filtroDataInicio, setFiltroDataInicio] = useState('');
     const [filtroDataFim, setFiltroDataFim] = useState('');
     const [filtroNome, setFiltroNome] = useState<string>('');
-    const [filtroStatus, setFiltroStatus] = useState<string>(''); // 👈 novo estado
+    const [filtroStatus, setFiltroStatus] = useState<string>('');
+    const [fotoAberta, setFotoAberta] = useState(false);
 
     const { user } = useAuth();
     const router = useRouter();
@@ -365,6 +369,54 @@ export default function PainelPage() {
                                         {item.localizacao}
                                     </a>
                                 </div>
+                                {item.fotoUrl && (
+                                    <div className="flex justify-between mt-2 mb-2 items-center">
+                                        <span className="font-semibold text-[#264D73] flex items-center gap-1">
+                                            <FaCamera />
+                                            Foto da ocorrência:
+                                        </span>
+                                        <button
+                                            onClick={() => setFotoAberta(true)}
+                                            className="px-2 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition duration-200 cursor-pointer flex items-center gap-1"
+                                            title="Visualizar a foto da ocorrência"
+                                        >
+                                            <FaEye /> Ver foto
+                                        </button>
+                                    </div>
+                                )}
+                                {fotoAberta && (
+                                    <AnimatePresence>
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center"
+                                            onClick={() => setFotoAberta(false)} // 👈 Fecha ao clicar no fundo
+                                        >
+                                            <motion.div
+                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                exit={{ scale: 0.8, opacity: 0 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                                className="relative bg-white p-4 rounded-lg shadow-lg max-w-2xl w-full"
+                                                onClick={(e) => e.stopPropagation()} // 👈 Impede que clique interno feche
+                                            >
+                                                <button
+                                                    onClick={() => setFotoAberta(false)}
+                                                    className="absolute top-2 right-2 text-gray-700 hover:text-red-600 text-xl font-bold cursor-pointer" // 👈 Cursor adicionado
+                                                    title="Fechar imagem"
+                                                >
+                                                    ×
+                                                </button>
+                                                <img
+                                                    src={item.fotoUrl}
+                                                    alt="Foto da ocorrência"
+                                                    className="w-full rounded max-h-[80vh] object-contain"
+                                                />
+                                            </motion.div>
+                                        </motion.div>
+                                    </AnimatePresence>
+                                )}
                                 <div className="flex justify-between mb-3 items-center">
                                     <span className="font-semibold text-[#264D73] flex items-center gap-1">
                                         <FaClock /> Status:

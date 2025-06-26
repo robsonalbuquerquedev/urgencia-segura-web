@@ -11,4 +11,5 @@ export interface Urgencia {
     dataHoraFim?: string;
     uid?: string;
     id?: string;
+    fotoUrl?: string;
 }
