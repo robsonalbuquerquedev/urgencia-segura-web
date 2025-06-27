@@ -53,28 +53,26 @@ export default function PainelPage() {
             const urgenciasDoOrgao: Urgencia[] = [];
 
             if (data) {
-                Object.entries(data).forEach(([uid, urgenciasPorUsuario]) => {
-                    if (typeof urgenciasPorUsuario === 'object' && urgenciasPorUsuario !== null) {
-                        Object.entries(urgenciasPorUsuario as Record<string, Urgencia>).forEach(
-                            ([id, urgencia]) => {
-                                if (
-                                    urgencia &&
-                                    urgencia.nome &&
-                                    urgencia.dataHoraInicio &&
-                                    urgencia.tipoUrgencia &&
-                                    urgencia.orgao === user.role // <- aqui filtramos pelo órgão
-                                ) {
-                                    urgenciasDoOrgao.push({
-                                        ...urgencia,
-                                        dataHoraInicio: urgencia.dataHoraInicio,
-                                        uid,
-                                        id
-                                    });
-                                }
-                            }
-                        );
+                Object.entries(data).forEach(([id, urgencia]) => {
+                    if (urgencia && typeof urgencia === 'object') {
+                        const urgenciaTyped = urgencia as Urgencia;
+
+                        if (
+                            urgenciaTyped.nome &&
+                            urgenciaTyped.dataHoraInicio &&
+                            urgenciaTyped.tipoUrgencia &&
+                            urgenciaTyped.orgao === user.role
+                        ) {
+                            urgenciasDoOrgao.push({
+                                ...urgenciaTyped,
+                                id, // push key
+                            });
+                        }
                     }
                 });
+
+                // 🔽 Ordenar por timestamp decrescente (mais recente primeiro)
+                urgenciasDoOrgao.sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0));
             }
 
             console.log(`Urgências carregadas para ${user.role}:`, urgenciasDoOrgao);
@@ -86,7 +84,7 @@ export default function PainelPage() {
             unsubscribe();
         };
     }, [user, router]);
-
+    
     useEffect(() => {
         const handleEsc = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
