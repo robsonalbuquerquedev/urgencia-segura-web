@@ -23,7 +23,7 @@ export default function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.6 }}
       >
-        Este portal é exclusivo para agentes do SAMU e da Defesa Civil.
+        Este portal é exclusivo para agentes da Guarda Municipal e da Defesa Civil.
         Acesse seu painel para visualizar e responder às ocorrências de urgência.
       </motion.p>
       

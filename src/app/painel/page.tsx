@@ -84,7 +84,7 @@ export default function PainelPage() {
             unsubscribe();
         };
     }, [user, router]);
-    
+
     useEffect(() => {
         const handleEsc = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
@@ -144,13 +144,12 @@ export default function PainelPage() {
     });
 
     const atualizarStatus = async (
-        uid: string | undefined,
         id: string | undefined,
         novoStatus: string
     ) => {
-        if (!uid || !id) return;
+        if (!id) return;
 
-        const caminho = `urgencias/${uid}/${id}`;
+        const caminho = `urgencias/${id}`;
         const updates: Record<string, unknown> = {
             status: novoStatus,
         };
@@ -446,35 +445,45 @@ export default function PainelPage() {
                                         <FaClock /> Status:
                                     </span>
                                     <span className={`text-white font-semibold px-2 py-1 rounded ${item.status === "novo" ? "bg-yellow-400" :
-                                        item.status === "pendente" ? "bg-orange-400" :
-                                            item.status === "em_andamento" ? "bg-blue-500" :
-                                                item.status === "concluido" ? "bg-green-600" :
-                                                    "bg-gray-400 transition duration-300 cursor-pointer"
+                                            item.status === "pendente" ? "bg-orange-400" :
+                                                item.status === "em_andamento" ? "bg-blue-500" :
+                                                    item.status === "concluido" ? "bg-green-600" :
+                                                        "bg-gray-400"
                                         }`}>
                                         {item.status}
                                     </span>
                                 </div>
+
                                 <div className="mt-4 flex gap-2">
                                     <button
                                         disabled={item.status === "pendente"}
-                                        onClick={() => atualizarStatus(item.uid, item.id, "pendente")}
-                                        className={`px-3 py-1 rounded text-white ${item.status === "pendente" ? "bg-orange-300 cursor-not-allowed" : "bg-orange-400 hover:bg-orange-500 transition duration-300 cursor-pointer"
+                                        onClick={() => atualizarStatus(item.id, "pendente")}
+                                        className={`px-3 py-1 rounded text-white ${item.status === "pendente"
+                                                ? "bg-orange-300 cursor-not-allowed"
+                                                : "bg-orange-400 hover:bg-orange-500 transition duration-300 cursor-pointer"
                                             }`}
                                     >
                                         Marcar como Pendente
                                     </button>
+
                                     <button
                                         disabled={item.status === "em_andamento"}
-                                        onClick={() => atualizarStatus(item.uid, item.id, "em_andamento")}
-                                        className={`px-3 py-1 rounded text-white ${item.status === "em_andamento" ? "bg-blue-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 transition duration-300 cursor-pointer"}`}
+                                        onClick={() => atualizarStatus(item.id, "em_andamento")}
+                                        className={`px-3 py-1 rounded text-white ${item.status === "em_andamento"
+                                                ? "bg-blue-300 cursor-not-allowed"
+                                                : "bg-blue-500 hover:bg-blue-600 transition duration-300 cursor-pointer"
+                                            }`}
                                     >
                                         Em Andamento
                                     </button>
 
                                     <button
                                         disabled={item.status === "concluido"}
-                                        onClick={() => atualizarStatus(item.uid, item.id, "concluido")}
-                                        className={`px-3 py-1 rounded text-white ${item.status === "concluido" ? "bg-green-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700 transition duration-300 cursor-pointer"}`}
+                                        onClick={() => atualizarStatus(item.id, "concluido")}
+                                        className={`px-3 py-1 rounded text-white ${item.status === "concluido"
+                                                ? "bg-green-300 cursor-not-allowed"
+                                                : "bg-green-600 hover:bg-green-700 transition duration-300 cursor-pointer"
+                                            }`}
                                     >
                                         Concluir
                                     </button>
