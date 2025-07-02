@@ -8,6 +8,7 @@ export interface Urgencia {
     localizacao: string;
     celular: string;
     orgao: string;
+    endereco?: string;
     status?: 'novo' | 'pendente' | 'em_andamento' | 'concluido';
     uid?: string;         
     id?: string;          

@@ -383,6 +383,14 @@ export default function PainelPage() {
                                         {item.localizacao}
                                     </a>
                                 </div>
+                                {item.endereco && (
+                                    <div className="flex justify-between mt-2">
+                                        <span className="font-semibold text-[#264D73] flex items-center gap-1">
+                                            🏠 Endereço:
+                                        </span>
+                                        <span className="text-gray-700 text-right">{item.endereco}</span>
+                                    </div>
+                                )}
                                 {item.fotoUrl && (
                                     <div className="flex justify-between mt-2 mb-2 items-center">
                                         <span className="font-semibold text-[#264D73] flex items-center gap-1">
@@ -445,10 +453,10 @@ export default function PainelPage() {
                                         <FaClock /> Status:
                                     </span>
                                     <span className={`text-white font-semibold px-2 py-1 rounded ${item.status === "novo" ? "bg-yellow-400" :
-                                            item.status === "pendente" ? "bg-orange-400" :
-                                                item.status === "em_andamento" ? "bg-blue-500" :
-                                                    item.status === "concluido" ? "bg-green-600" :
-                                                        "bg-gray-400"
+                                        item.status === "pendente" ? "bg-orange-400" :
+                                            item.status === "em_andamento" ? "bg-blue-500" :
+                                                item.status === "concluido" ? "bg-green-600" :
+                                                    "bg-gray-400"
                                         }`}>
                                         {item.status}
                                     </span>
@@ -459,8 +467,8 @@ export default function PainelPage() {
                                         disabled={item.status === "pendente"}
                                         onClick={() => atualizarStatus(item.id, "pendente")}
                                         className={`px-3 py-1 rounded text-white ${item.status === "pendente"
-                                                ? "bg-orange-300 cursor-not-allowed"
-                                                : "bg-orange-400 hover:bg-orange-500 transition duration-300 cursor-pointer"
+                                            ? "bg-orange-300 cursor-not-allowed"
+                                            : "bg-orange-400 hover:bg-orange-500 transition duration-300 cursor-pointer"
                                             }`}
                                     >
                                         Marcar como Pendente
@@ -470,8 +478,8 @@ export default function PainelPage() {
                                         disabled={item.status === "em_andamento"}
                                         onClick={() => atualizarStatus(item.id, "em_andamento")}
                                         className={`px-3 py-1 rounded text-white ${item.status === "em_andamento"
-                                                ? "bg-blue-300 cursor-not-allowed"
-                                                : "bg-blue-500 hover:bg-blue-600 transition duration-300 cursor-pointer"
+                                            ? "bg-blue-300 cursor-not-allowed"
+                                            : "bg-blue-500 hover:bg-blue-600 transition duration-300 cursor-pointer"
                                             }`}
                                     >
                                         Em Andamento
@@ -481,8 +489,8 @@ export default function PainelPage() {
                                         disabled={item.status === "concluido"}
                                         onClick={() => atualizarStatus(item.id, "concluido")}
                                         className={`px-3 py-1 rounded text-white ${item.status === "concluido"
-                                                ? "bg-green-300 cursor-not-allowed"
-                                                : "bg-green-600 hover:bg-green-700 transition duration-300 cursor-pointer"
+                                            ? "bg-green-300 cursor-not-allowed"
+                                            : "bg-green-600 hover:bg-green-700 transition duration-300 cursor-pointer"
                                             }`}
                                     >
                                         Concluir
